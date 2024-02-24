@@ -1,3 +1,4 @@
+import './index.css';
 import Header from "./components/header";
 import SideBar from "./components/sidebar";
 
