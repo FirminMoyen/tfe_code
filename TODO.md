@@ -1,0 +1,6 @@
+- [X] Transformer les images en 512X512 px 
+- [ ] créer le masuqe pour les images de training et de test 
+- [ ] créer un modele unet 
+- [ ] entrainer le modele 
+- [ ] détecter les taches et en créer un masque
+- [ ]  
