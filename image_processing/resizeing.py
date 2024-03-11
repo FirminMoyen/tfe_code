@@ -13,7 +13,7 @@ def resize_image(input_image_path, output_image_path):
             image.thumbnail((512, 512))
 
             # Create a new square background image
-            new_image = Image.new("RGB", (512, 512))
+            new_image = Image.new("RGBA", (512, 512,))
 
             # Paste the resized image into the center of the square background image
             new_image.paste(image, ((512 - image.size[0]) // 2, (512 - image.size[1]) // 2))
