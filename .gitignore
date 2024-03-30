@@ -1,3 +1,4 @@
 .tfe
 *.png
 *.jpg
+node_modules/

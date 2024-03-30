@@ -1,5 +1,7 @@
-import os, sys
+import os
+import sys
 from PIL import Image
+
 
 def resize_image(input_image_path, output_image_path):
     try:
@@ -16,11 +18,13 @@ def resize_image(input_image_path, output_image_path):
             new_image = Image.new("RGBA", (512, 512,))
 
             # Paste the resized image into the center of the square background image
-            new_image.paste(image, ((512 - image.size[0]) // 2, (512 - image.size[1]) // 2))
+            new_image.paste(
+                image, ((512 - image.size[0]) // 2, (512 - image.size[1]) // 2))
 
             new_image.save(output_image_path)
     except Exception as e:
         print(f"An error occurred: {e}")
+
 
 # Example usage
 input_path = "TFE/tfe_code/image_processing/unet_segmentation/dataset/og_images/a15.jpg"
