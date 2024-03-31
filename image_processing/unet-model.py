@@ -1,67 +1,60 @@
+from tensorflow.keras.layers import Conv2D, BatchNormalization, Activation, MaxPool2D, Conv2DTranspose, Concatenate, Input
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, Dropout, concatenate, UpSampling2D
 
 
-def unet_model(input_shape):
+def conv_block(inputs, num_filters):
+    x = Conv2D(num_filters, 3, padding="same")(inputs)
+    x = BatchNormalization()(x)
+    x = Activation("relu")(x)
+
+    x = Conv2D(num_filters, 3, padding="same")(x)
+    x = BatchNormalization()(x)
+    x = Activation("relu")(x)
+
+    return x
+
+
+def encoder_block(inputs, num_filters):
+    x = conv_block(inputs, num_filters)
+    p = MaxPool2D((2, 2))(x)
+
+    return x, p
+
+
+def decoder_block(inputs, skip, num_filters):
+    x = Conv2DTranspose(num_filters, (2, 2), strides=2, padding="same")(inputs)
+    x = Concatenate()([x, skip])
+    x = conv_block(x, num_filters)
+    return x
+
+
+def build_unet(input_shape):
     inputs = Input(input_shape)
 
-    # Contracting path
-    conv1 = Conv2D(64, 3, activation='relu', padding='same')(inputs)
-    conv1 = Conv2D(64, 3, activation='relu', padding='same')(conv1)
-    pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
+    """Encoder"""
+    s1, p1 = encoder_block(inputs, 64)
+    s2, p2 = encoder_block(p1, 128)
+    s3, p3 = encoder_block(p2, 256)
+    s4, p4 = encoder_block(p3, 512)
 
-    conv2 = Conv2D(128, 3, activation='relu', padding='same')(pool1)
-    conv2 = Conv2D(128, 3, activation='relu', padding='same')(conv2)
-    pool2 = MaxPooling2D(pool_size=(2, 2))(conv2)
+    """Bridge"""
+    b1 = conv_block(p4, 1024)
 
-    conv3 = Conv2D(256, 3, activation='relu', padding='same')(pool2)
-    conv3 = Conv2D(256, 3, activation='relu', padding='same')(conv3)
-    pool3 = MaxPooling2D(pool_size=(2, 2))(conv3)
+    """Decoder"""
+    d1 = decoder_block(b1, s4, 512)
+    d2 = decoder_block(d1, s3, 256)
+    d3 = decoder_block(d2, s2, 128)
+    d4 = decoder_block(d3, s1, 64)
 
-    conv4 = Conv2D(512, 3, activation='relu', padding='same')(pool3)
-    conv4 = Conv2D(512, 3, activation='relu', padding='same')(conv4)
-    drop4 = Dropout(0.5)(conv4)
-    pool4 = MaxPooling2D(pool_size=(2, 2))(drop4)
+    """Output"""
+    outputs = Conv2D(1, 1, padding="same", activation="sigmoid")(d4)
+    print(outputs.shape)
 
-    # Bottom
-    conv5 = Conv2D(1024, 3, activation='relu', padding='same')(pool4)
-    conv5 = Conv2D(1024, 3, activation='relu', padding='same')(conv5)
-    drop5 = Dropout(0.5)(conv5)
-
-    # Expanding path
-    up6 = Conv2D(512, 2, activation='relu', padding='same')(
-        UpSampling2D(size=(2, 2))(drop5))
-    merge6 = concatenate([drop4, up6], axis=3)
-    conv6 = Conv2D(512, 3, activation='relu', padding='same')(merge6)
-    conv6 = Conv2D(512, 3, activation='relu', padding='same')(conv6)
-
-    up7 = Conv2D(256, 2, activation='relu', padding='same')(
-        UpSampling2D(size=(2, 2))(conv6))
-    merge7 = concatenate([conv3, up7], axis=3)
-    conv7 = Conv2D(256, 3, activation='relu', padding='same')(merge7)
-    conv7 = Conv2D(256, 3, activation='relu', padding='same')(conv7)
-
-    up8 = Conv2D(128, 2, activation='relu', padding='same')(
-        UpSampling2D(size=(2, 2))(conv7))
-    merge8 = concatenate([conv2, up8], axis=3)
-    conv8 = Conv2D(128, 3, activation='relu', padding='same')(merge8)
-    conv8 = Conv2D(128, 3, activation='relu', padding='same')(conv8)
-
-    up9 = Conv2D(64, 2, activation='relu', padding='same')(
-        UpSampling2D(size=(2, 2))(conv8))
-    merge9 = concatenate([conv1, up9], axis=3)
-    conv9 = Conv2D(64, 3, activation='relu', padding='same')(merge9)
-    conv9 = Conv2D(64, 3, activation='relu', padding='same')(conv9)
-    conv9 = Conv2D(2, 3, activation='relu', padding='same')(conv9)
-
-    # Output
-    outputs = Conv2D(1, 1, activation='sigmoid')(conv9)
-
-    model = Model(inputs=inputs, outputs=outputs)
+    model = Model(inputs, outputs, name="U-Net")
     return model
 
 
-# Example usage
-input_shape = (256, 256, 3)
-model = unet_model(input_shape)
+input_shape = (512, 512, 3)
+model = build_unet(input_shape)
+
 model.summary()

@@ -1,4 +1,6 @@
+.venv-tfe
 .tfe
 *.png
 *.jpg
 node_modules/
+*.ipynb
