@@ -2,6 +2,10 @@
   "name": "salamander_id",
   "version": "0.1.0",
   "private": true,
+  "electron": "electron .",
+  "dist": "electron-builder",
+  "main": "electron.js",
+
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -15,7 +19,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "electron": "electron ."
   },
   "eslintConfig": {
     "extends": [
@@ -34,5 +39,18 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "electron": "^30.0.3",
+    "electron-builder": "^24.13.3",
+    "electron-is-dev": "^3.0.1"
+  },
+
+  "build": {
+    "appId": "com.salamnder_id.app",
+    "productName": "Salamander_ID",
+    "directories": {
+      "output": "dist"
+    }
   }
 }
