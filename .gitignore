@@ -1,1 +1,11 @@
+.venv-tfe
+.tfe
+*.png
+*.jpg
+*.jpeg
+node_modules/
+.DS_Store
+*.keras
+*.csv
+*.pth
 /slamander_id/node_modules/*
