@@ -8,3 +8,4 @@ node_modules/
 *.keras
 *.csv
 *.pth
+/slamander_id/node_modules/*
